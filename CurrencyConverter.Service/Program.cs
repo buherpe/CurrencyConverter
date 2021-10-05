@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json.Linq;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Extensions.Polling;
@@ -75,19 +76,14 @@ namespace CurrencyConverter.Service
                     _startup = false;
                 }
 
-                using var scope = _serviceScopeFactory.CreateScope();
-                var context = scope.ServiceProvider.GetRequiredService<MyDbContext>();
-
-                var request = context.Requests.FirstOrDefault(x => x.Id == 1) ?? new Request();
-
-                //_logger.LogInformation($"{request.Json}");
-
                 await Task.Delay(5_000, stoppingToken);
             }
         }
 
         public async Task StartTgBot()
         {
+            _logger.LogInformation($"Запускаем тг бота");
+
             var botClient = new TelegramBotClient(_configuration.GetSection("Telegram:Token").Value);
 
             var me = await botClient.GetMeAsync();
@@ -124,7 +120,46 @@ namespace CurrencyConverter.Service
 
             _logger.LogInformation($"Received a '{update.Message.Text}' message in chat {chatId}.");
 
-            await botClient.SendTextMessageAsync(chatId, "You said:\n" + update.Message.Text, cancellationToken: cancellationToken);
+            var sumAndCurrencies = Helper.ParseSumAndCurrency(update.Message.Text);
+
+            if (!sumAndCurrencies.Any())
+            {
+                return;
+            }
+
+            using var scope = _serviceScopeFactory.CreateScope();
+            var context = scope.ServiceProvider.GetRequiredService<MyDbContext>();
+
+            var request = context.Requests.FirstOrDefault(x => x.Id == 1) ?? new Request();
+
+            //_logger.LogInformation($"{request.Json}");
+
+            var str = $"";
+
+            foreach (var sumAndCurrency in sumAndCurrencies)
+            {
+                var exchangeRate = JToken.Parse(request.Json)["conversion_rates"]["KZT"].Value<decimal>() / JToken.Parse(request.Json)["conversion_rates"]["RUB"].Value<decimal>();
+
+                switch (sumAndCurrency.Currency)
+                {
+                    case Currency.None:
+                        break;
+                    case Currency.Rub:
+                        var sum2 = sumAndCurrency.Sum * exchangeRate;
+                        str += $"{sum2}\n";
+
+                        break;
+                    case Currency.Tenge:
+                        var sum3 = sumAndCurrency.Sum / exchangeRate;
+                        str += $"{sum3}\n";
+
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
+            }
+
+            await botClient.SendTextMessageAsync(chatId, $"{str}", cancellationToken: cancellationToken, replyToMessageId: update.Message.MessageId);
         }
     }
 
