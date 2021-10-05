@@ -1,3 +1,4 @@
+using System;
 using CurrencyConverter;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -7,7 +8,7 @@ namespace CurrencyConverterTests
     public class UnitTest1
     {
         [TestMethod]
-        public void Test006()
+        public void Test001()
         {
             var expected = Helper.ParseSumAndCurrency("5000р");
             Assert.AreEqual(expected.Count, 1);
@@ -46,21 +47,6 @@ namespace CurrencyConverterTests
             Assert.AreEqual(expected[1].Sum, 7000m);
             Assert.AreEqual(expected[1].Currency, Currency.Rub);
 
-            //todo
-            //expected = ParseSumAndCurrency("тест 5 000 - 7000 р тест");
-            //Assert.AreEqual(expected.Count, 2);
-            //Assert.AreEqual(expected[0].Sum, 5000m);
-            //Assert.AreEqual(expected[0].Currency, Currency.Rub);
-            //Assert.AreEqual(expected[1].Sum, 7000m);
-            //Assert.AreEqual(expected[1].Currency, Currency.Rub);
-
-            //expected = ParseSumAndCurrency("тест 5 5 000 - 7000 р тест");
-            //Assert.AreEqual(expected.Count, 2);
-            //Assert.AreEqual(expected[0].Sum, 5000m);
-            //Assert.AreEqual(expected[0].Currency, Currency.Rub);
-            //Assert.AreEqual(expected[1].Sum, 7000m);
-            //Assert.AreEqual(expected[1].Currency, Currency.Rub);
-
             expected = Helper.ParseSumAndCurrency("тест 5 000р - 7000 руб тест");
             Assert.AreEqual(expected.Count, 2);
             Assert.AreEqual(expected[0].Sum, 5000m);
@@ -70,7 +56,25 @@ namespace CurrencyConverterTests
         }
 
         [TestMethod]
-        public void Test007()
+        public void Test002_Todo()
+        {
+            var expected = Helper.ParseSumAndCurrency("тест 5 000 - 7000 р тест");
+            Assert.AreEqual(expected.Count, 2);
+            Assert.AreEqual(expected[0].Sum, 5000m);
+            Assert.AreEqual(expected[0].Currency, Currency.Rub);
+            Assert.AreEqual(expected[1].Sum, 7000m);
+            Assert.AreEqual(expected[1].Currency, Currency.Rub);
+
+            expected = Helper.ParseSumAndCurrency("тест 5 5 000 - 7000 р тест");
+            Assert.AreEqual(expected.Count, 2);
+            Assert.AreEqual(expected[0].Sum, 5000m);
+            Assert.AreEqual(expected[0].Currency, Currency.Rub);
+            Assert.AreEqual(expected[1].Sum, 7000m);
+            Assert.AreEqual(expected[1].Currency, Currency.Rub);
+        }
+
+        [TestMethod]
+        public void Test003()
         {
             Assert.AreEqual(Helper.DetectCurrency("р"), Currency.Rub);
             Assert.AreEqual(Helper.DetectCurrency("р."), Currency.Rub);
@@ -92,6 +96,12 @@ namespace CurrencyConverterTests
             Assert.AreEqual(Helper.DetectCurrency("ст"), Currency.None);
             Assert.AreEqual(Helper.DetectCurrency("тенге"), Currency.Tenge);
             Assert.AreEqual(Helper.DetectCurrency("стенге"), Currency.None);
+        }
+
+        [TestMethod]
+        public void Test004()
+        {
+            
         }
     }
 }

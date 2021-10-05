@@ -11,15 +11,17 @@ namespace CurrencyConverter
         {
             [Currency.Rub] = new CurrencySetting
             {
-                Currency = Currency.Rub,
+                //Currency = Currency.Rub,
                 IsAfter = true,
                 Symbols = new List<string> { "р", "руб", "руб.", "р.", "рублей", "рубля" },
+                ISO = "RUB",
             },
             [Currency.Tenge] = new CurrencySetting
             {
-                Currency = Currency.Rub,
+                //Currency = Currency.Rub,
                 IsAfter = true,
                 Symbols = new List<string> { "т", "тнг", "тнг.", "т.", "тенге" },
+                ISO = "KZT",
             },
         };
 
@@ -28,8 +30,9 @@ namespace CurrencyConverter
             var result = new List<ParsingResult>();
 
             var possibleCurrencySymbols = CurrencySettings.Values.SelectMany(x => x.Symbols).ToDictionary(x => x).Keys.Select(x => x).Select(Regex.Escape).ToList();
+            var possibleCurrencySymbolsStr = string.Join("|", possibleCurrencySymbols);
 
-            var matches = Regex.Matches(input, @$"\b(?'sumWcur'(?'sum'[0-9 ]+) ?(?'cur'{string.Join("|", possibleCurrencySymbols)}))(\s|$)", RegexOptions.Multiline);
+            var matches = Regex.Matches(input, @$"\b(?'sumWcur'(?'sum'[0-9 ]+) ?(?'cur'{possibleCurrencySymbolsStr}))(\s|$)", RegexOptions.Multiline);
 
             foreach (Match match in matches)
             {
@@ -80,12 +83,14 @@ namespace CurrencyConverter
 
     public class CurrencySetting
     {
-        public Currency Currency { get; set; }
+        //public Currency Currency { get; set; }
 
         public List<string> Symbols { get; set; }
 
         public bool IsBefore { get; set; }
 
         public bool IsAfter { get; set; }
+
+        public string ISO { get; set; }
     }
 }
