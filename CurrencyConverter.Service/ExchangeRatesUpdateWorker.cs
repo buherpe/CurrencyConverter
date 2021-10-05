@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -19,10 +20,13 @@ namespace CurrencyConverter.Service
 
         private readonly IServiceScopeFactory _serviceScopeFactory;
 
-        public ExchangeRatesUpdateWorker(ILogger<ExchangeRatesUpdateWorker> logger, IServiceScopeFactory serviceScopeFactory)
+        private readonly IConfiguration _configuration;
+
+        public ExchangeRatesUpdateWorker(ILogger<ExchangeRatesUpdateWorker> logger, IServiceScopeFactory serviceScopeFactory, IConfiguration configuration)
         {
             _logger = logger;
             _serviceScopeFactory = serviceScopeFactory;
+            _configuration = configuration;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -40,11 +44,13 @@ namespace CurrencyConverter.Service
 
                 //_logger.LogInformation($"days: {days}");
 
+                //_logger.LogInformation($"{_configuration.GetSection("ExchangeRates:Url").Value}");
+
                 if (days > TimeSpan.FromDays(1))
                 {
                     _logger.LogInformation($"Курс протух, обновляем");
 
-                    var client = new RestClient("https://v6.exchangerate-api.com/v6/f4b04e54320a07ff8fad04b4/latest/");
+                    var client = new RestClient(_configuration.GetSection("ExchangeRates:Url").Value);
 
                     client.UseNewtonsoftJson(new JsonSerializerSettings
                     {
@@ -54,7 +60,7 @@ namespace CurrencyConverter.Service
                         },
                     });
 
-                    var apiRequest = new RestRequest("RUB", DataFormat.Json);
+                    var apiRequest = new RestRequest();
 
                     var response = await client.ExecuteGetAsync(apiRequest, stoppingToken);
 
