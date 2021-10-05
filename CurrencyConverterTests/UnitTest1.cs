@@ -101,7 +101,7 @@ namespace CurrencyConverterTests
         [TestMethod]
         public void Test004()
         {
-            
+            Helper.Q();
         }
     }
 }
