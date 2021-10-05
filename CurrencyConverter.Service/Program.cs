@@ -24,7 +24,7 @@ namespace CurrencyConverter.Service
                         .UseNpgsql(hostContext.Configuration.GetConnectionString("DefaultConnection"))
                         .UseSnakeCaseNamingConvention());
 
-                    services.AddHostedService<ExchangeRatesWorker>();
+                    services.AddHostedService<ExchangeRatesUpdateWorker>();
                     services.AddSingleton<IClass1, Class1>();
                 });
     }

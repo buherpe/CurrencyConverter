@@ -13,13 +13,13 @@ using RestSharp.Serializers.NewtonsoftJson;
 
 namespace CurrencyConverter.Service
 {
-    public class ExchangeRatesWorker : BackgroundService
+    public class ExchangeRatesUpdateWorker : BackgroundService
     {
-        private readonly ILogger<ExchangeRatesWorker> _logger;
+        private readonly ILogger<ExchangeRatesUpdateWorker> _logger;
 
         private readonly IServiceScopeFactory _serviceScopeFactory;
 
-        public ExchangeRatesWorker(ILogger<ExchangeRatesWorker> logger, IServiceScopeFactory serviceScopeFactory)
+        public ExchangeRatesUpdateWorker(ILogger<ExchangeRatesUpdateWorker> logger, IServiceScopeFactory serviceScopeFactory)
         {
             _logger = logger;
             _serviceScopeFactory = serviceScopeFactory;
