@@ -37,7 +37,9 @@ namespace CurrencyConverter
             var possibleCurrencySymbols = CurrencySettings.Values.SelectMany(x => x.Symbols).ToDictionary(x => x).Keys.Select(x => x).Select(Regex.Escape).ToList();
             var possibleCurrencySymbolsStr = string.Join("|", possibleCurrencySymbols);
 
-            var matches = Regex.Matches(input, @$"\b(?'sumWcur'(?'sum'(?!0+ 00)(?=.{{1,9}}( |$))(?!0(?! ))\d{{1,3}}( \d{{3}})*( \d+)?) ?(?'cur'{possibleCurrencySymbolsStr}))(\s|$)", RegexOptions.Multiline);
+            //var matches = Regex.Matches(input, @$"\b(?'sumWcur'(?'sum'(?!0+ 00)(?=.{{1,9}}( |$))(?!0(?! ))\d{{1,3}}( \d{{3}})*( \d+)?) ?(?'cur'{possibleCurrencySymbolsStr}))(\s|$)", RegexOptions.Multiline);
+            //var matches = Regex.Matches(input, @$"\b(?'sumWcur'(?'sum'(?!0+\.00)(?=.{{1,9}}(\.|$))(?!0(?!\.))\d{{1,3}}((,| |)\d{{3}})*(\.\d+)?) ?(?'cur'{possibleCurrencySymbolsStr}))(\s|$)", RegexOptions.Multiline);
+            var matches = Regex.Matches(input, @$"\b(?'sumWcur'(?'sum'(?!0+\.00)(?=.{{1,9}}(\.|$| ))(?!0(?!\.))\d{{1,3}}((,| |)\d{{3}})*(\.\d+)?) ?(?'cur'{possibleCurrencySymbolsStr}))(\s|$)", RegexOptions.Multiline);
 
             foreach (Match match in matches)
             {
@@ -92,6 +94,7 @@ namespace CurrencyConverter
     // \b(?'sumWcur'(?'sum'[0-9 ]+) ?(?'cur'[a-zA-Zа-яА-Я.]+))(\s|$)
     // \b(?'sumWcur'(?'sum'(?!0+ 00)(?=.{1,9}( |$))(?!0(?! ))\d{1,3}( \d{3})*( \d+)?) ?(?'cur'р|руб|руб\.|р\.|рублей|рубля|т|тнг|тнг\.|т\.|тенге))(\s|$)
     // \b(?'sumWcur'(?'sum'(?!0+\.00)(?=.{1,9}(\.|$))(?!0(?!\.))\d{1,3}((,| |)\d{3})*(\.\d+)?) ?(?'cur'р|руб|руб\.|р\.|рублей|рубля|т|тнг|тнг\.|т\.|тенге))(\s|$)
+    // \b(?'sumWcur'(?'sum'(?!0+\.00)(?=.{1,9}(\.|$| ))(?!0(?!\.))\d{1,3}((,| |)\d{3})*(\.\d+)?) ?(?'cur'р|руб|руб\.|р\.|рублей|рубля|т|тнг|тнг\.|т\.|тенге))(\s|$)
 
     /*
      * 5р

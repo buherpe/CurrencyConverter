@@ -53,6 +53,34 @@ namespace CurrencyConverterTests
             Assert.AreEqual(Currency.Rub, expected[0].Currency);
             Assert.AreEqual(7000m, expected[1].Sum);
             Assert.AreEqual(Currency.Rub, expected[1].Currency);
+
+            expected = Helper.ParseSumAndCurrency("тест 5 5 000р - 7000 руб тест");
+            Assert.AreEqual(2, expected.Count);
+            Assert.AreEqual(5000m, expected[0].Sum);
+            Assert.AreEqual(Currency.Rub, expected[0].Currency);
+            Assert.AreEqual(7000m, expected[1].Sum);
+            Assert.AreEqual(Currency.Rub, expected[1].Currency);
+
+            expected = Helper.ParseSumAndCurrency("тест 5 000р - 7 7000 руб тест");
+            Assert.AreEqual(2, expected.Count);
+            Assert.AreEqual(5000m, expected[0].Sum);
+            Assert.AreEqual(Currency.Rub, expected[0].Currency);
+            Assert.AreEqual(7000m, expected[1].Sum);
+            Assert.AreEqual(Currency.Rub, expected[1].Currency);
+
+            expected = Helper.ParseSumAndCurrency("тест 5 5 000р - 7 7000 руб тест");
+            Assert.AreEqual(2, expected.Count);
+            Assert.AreEqual(5000m, expected[0].Sum);
+            Assert.AreEqual(Currency.Rub, expected[0].Currency);
+            Assert.AreEqual(7000m, expected[1].Sum);
+            Assert.AreEqual(Currency.Rub, expected[1].Currency);
+
+            expected = Helper.ParseSumAndCurrency("тест 5 5000р - 7 7 000 руб тест");
+            Assert.AreEqual(2, expected.Count);
+            Assert.AreEqual(5000m, expected[0].Sum);
+            Assert.AreEqual(Currency.Rub, expected[0].Currency);
+            Assert.AreEqual(7000m, expected[1].Sum);
+            Assert.AreEqual(Currency.Rub, expected[1].Currency);
         }
 
         [TestMethod]
@@ -108,6 +136,18 @@ namespace CurrencyConverterTests
         public void Test005()
         {
             var expected = Helper.ParseSumAndCurrency("чтоб в тенге переводил...");
+            Assert.AreEqual(0, expected.Count);
+
+            expected = Helper.ParseSumAndCurrency(" тенге переводил...");
+            Assert.AreEqual(0, expected.Count);
+
+            expected = Helper.ParseSumAndCurrency("тенге переводил...");
+            Assert.AreEqual(0, expected.Count);
+
+            expected = Helper.ParseSumAndCurrency("тенге ");
+            Assert.AreEqual(0, expected.Count);
+
+            expected = Helper.ParseSumAndCurrency("тенге");
             Assert.AreEqual(0, expected.Count);
         }
     }
