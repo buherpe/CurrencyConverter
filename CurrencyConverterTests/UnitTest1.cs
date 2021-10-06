@@ -81,6 +81,20 @@ namespace CurrencyConverterTests
             Assert.AreEqual(Currency.Rub, expected[0].Currency);
             Assert.AreEqual(7000m, expected[1].Sum);
             Assert.AreEqual(Currency.Rub, expected[1].Currency);
+
+            expected = Helper.ParseSumAndCurrency("1.00р - 5.8 т тест");
+            Assert.AreEqual(2, expected.Count);
+            Assert.AreEqual(1m, expected[0].Sum);
+            Assert.AreEqual(Currency.Rub, expected[0].Currency);
+            Assert.AreEqual(5.8m, expected[1].Sum);
+            Assert.AreEqual(Currency.Tenge, expected[1].Currency);
+
+            expected = Helper.ParseSumAndCurrency("1,00р - 5,8 т тест");
+            Assert.AreEqual(2, expected.Count);
+            Assert.AreEqual(1m, expected[0].Sum);
+            Assert.AreEqual(Currency.Rub, expected[0].Currency);
+            Assert.AreEqual(5.8m, expected[1].Sum);
+            Assert.AreEqual(Currency.Tenge, expected[1].Currency);
         }
 
         [TestMethod]

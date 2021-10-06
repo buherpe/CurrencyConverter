@@ -107,23 +107,28 @@ namespace CurrencyConverter.Service
                 {
                     var exchangeRate = JToken.Parse(request.Json)["conversion_rates"]["KZT"].Value<decimal>() / JToken.Parse(request.Json)["conversion_rates"]["RUB"].Value<decimal>();
 
+                    var sum = 0m;
+                    var symbol = $"";
+
                     switch (sumAndCurrency.Currency)
                     {
                         case Currency.None:
                             break;
                         case Currency.Rub:
-                            var sum2 = sumAndCurrency.Sum * exchangeRate;
-                            str += $"{sum2}\n";
+                            sum = sumAndCurrency.Sum * exchangeRate;
+                            symbol = Helper.CurrencySettings[Currency.Tenge].Symbols.FirstOrDefault();
 
                             break;
                         case Currency.Tenge:
-                            var sum3 = sumAndCurrency.Sum / exchangeRate;
-                            str += $"{sum3}\n";
+                            sum = sumAndCurrency.Sum / exchangeRate;
+                            symbol = Helper.CurrencySettings[Currency.Rub].Symbols.FirstOrDefault();
 
                             break;
                         default:
                             throw new ArgumentOutOfRangeException();
                     }
+
+                    str += $"{Math.Round(sum, 0):N0}{symbol}\n";
                 }
 
                 await botClient.SendTextMessageAsync(chatId, $"{str}", cancellationToken: cancellationToken, replyToMessageId: update.Message.MessageId);
