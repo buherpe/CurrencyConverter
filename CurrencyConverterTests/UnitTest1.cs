@@ -11,13 +11,13 @@ namespace CurrencyConverterTests
         public void Test001()
         {
             var expected = Helper.ParseSumAndCurrency("5000р");
-            Assert.AreEqual(expected.Count, 1);
-            Assert.AreEqual(expected[0].Sum, 5000m);
-            Assert.AreEqual(expected[0].Currency, Currency.Rub);
+            Assert.AreEqual(1, expected.Count);
+            Assert.AreEqual(5000m, expected[0].Sum);
+            Assert.AreEqual(Currency.Rub, expected[0].Currency);
 
             expected = Helper.ParseSumAndCurrency("5 000р");
-            Assert.AreEqual(expected.Count, 1);
-            Assert.AreEqual(expected[0].Sum, 5000m);
+            Assert.AreEqual(1, expected.Count);
+            Assert.AreEqual(5000m, expected[0].Sum);
             Assert.AreEqual(expected[0].Currency, Currency.Rub);
 
             expected = Helper.ParseSumAndCurrency("5000 р");
@@ -102,6 +102,13 @@ namespace CurrencyConverterTests
         public void Test004()
         {
             Helper.Q();
+        }
+
+        [TestMethod]
+        public void Test005()
+        {
+            var expected = Helper.ParseSumAndCurrency("чтоб в тенге переводил...");
+            Assert.AreEqual(expected.Count, 0);
         }
     }
 }
