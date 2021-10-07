@@ -16,21 +16,18 @@ namespace CurrencyConverter
         {
             [Currency.Rub] = new CurrencySetting
             {
-                //Currency = Currency.Rub,
                 IsAfter = true,
                 Symbols = new List<string> { "р", "руб", "руб.", "р.", "рублей", "рубля" },
                 ISO = "RUB",
             },
             [Currency.Tenge] = new CurrencySetting
             {
-                //Currency = Currency.Rub,
                 IsAfter = true,
                 Symbols = new List<string> { "т", "тнг", "тнг.", "т.", "тенге" },
                 ISO = "KZT",
             },
             [Currency.Dollar] = new CurrencySetting
             {
-                //Currency = Currency.Dollar,
                 IsAfter = true,
                 IsBefore = true,
                 Symbols = new List<string> { "$", "д", "д.", "дол", "долларов", "доллара", "доллар", "баксов", "бакса", "бакс" },
@@ -43,17 +40,17 @@ namespace CurrencyConverter
             new()
             {
                 ChatId = 66227,
-                Qs = new()
+                CurrencyConvertSettings = new()
                 {
                     new()
                     {
-                        Currency = Currency.Rub,
+                        Currency = Currency.Dollar,
                         TargetCurrencies = new()
                         {
                             Currency.Tenge,
-                            Currency.Dollar
+                            Currency.Rub,
                         }
-                    }
+                    },
                 }
             },
         };
@@ -72,7 +69,7 @@ namespace CurrencyConverter
             foreach (Match match in matches)
             {
                 var parsingResult = new ParsingResult();
-
+                
                 parsingResult.Currency = DetectCurrency(match.Groups["cur"].Value);
                 parsingResult.Sum = decimal.Parse(match.Groups["sum"].Value);
 
@@ -235,10 +232,10 @@ namespace CurrencyConverter
     {
         public long ChatId { get; set; }
 
-        public List<Q> Qs { get; set; } = new();
+        public List<CurrencyConvertSetting> CurrencyConvertSettings { get; set; } = new();
     }
 
-    public class Q
+    public class CurrencyConvertSetting
     {
         public Currency Currency { get; set; }
 
