@@ -27,20 +27,9 @@ namespace CurrencyConverter.Service
 
                     services.AddHostedService<ExchangeRatesUpdateWorker>();
                     services.AddHostedService<TelegramBotWorker>();
-                    services.AddSingleton<IClass1, Class1>();
                     services.AddSingleton<IExchangeRateApiClient, ExchangeRateApiComClient>();
                     services.AddSingleton<IExchangeRateApiWrapper, ExchangeRateApiComWrapper>();
                 });
-    }
-
-    public interface IClass1
-    {
-        Guid Guid { get; set; }
-    }
-
-    public class Class1 : IClass1
-    {
-        public Guid Guid { get; set; } = Guid.NewGuid();
     }
 
     public interface IExchangeRateApiClient
