@@ -3,10 +3,8 @@ using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections.Generic;
 using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 
 namespace CurrencyConverter.Service
 {
@@ -30,32 +28,6 @@ namespace CurrencyConverter.Service
                     services.AddSingleton<IExchangeRateApiClient, ExchangeRateApiComClient>();
                     services.AddSingleton<IExchangeRateApiWrapper, ExchangeRateApiComWrapper>();
                 });
-    }
-
-    public interface IExchangeRateApiClient
-    {
-
-    }
-
-    public class ExchangeRateApiComClient : IExchangeRateApiClient
-    {
-        private readonly ILogger<ExchangeRatesUpdateWorker> _logger;
-
-        private readonly IServiceScopeFactory _serviceScopeFactory;
-
-        private readonly IConfiguration _configuration;
-
-        public ExchangeRateApiComClient(ILogger<ExchangeRatesUpdateWorker> logger, IServiceScopeFactory serviceScopeFactory, IConfiguration configuration)
-        {
-            _logger = logger;
-            _serviceScopeFactory = serviceScopeFactory;
-            _configuration = configuration;
-        }
-
-        public async Task Q()
-        {
-
-        }
     }
 
     public class Request

@@ -105,6 +105,9 @@ namespace CurrencyConverter.Service
 
                 foreach (var sumAndCurrency in sumAndCurrencies)
                 {
+
+
+
                     var exchangeRate = JToken.Parse(request.Json)["conversion_rates"]["KZT"].Value<decimal>() / JToken.Parse(request.Json)["conversion_rates"]["RUB"].Value<decimal>();
 
                     var sum = 0m;

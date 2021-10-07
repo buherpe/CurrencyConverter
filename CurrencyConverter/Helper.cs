@@ -28,6 +28,34 @@ namespace CurrencyConverter
                 Symbols = new List<string> { "т", "тнг", "тнг.", "т.", "тенге" },
                 ISO = "KZT",
             },
+            [Currency.Dollar] = new CurrencySetting
+            {
+                //Currency = Currency.Dollar,
+                IsAfter = true,
+                IsBefore = true,
+                Symbols = new List<string> { "$", "д", "д.", "дол", "долларов", "доллара", "доллар", "баксов", "бакса", "бакс" },
+                ISO = "USD",
+            },
+        };
+
+        public static List<GroupSetting> GroupSettings { get; set; } = new()
+        {
+            new()
+            {
+                ChatId = 66227,
+                Qs = new()
+                {
+                    new()
+                    {
+                        Currency = Currency.Rub,
+                        TargetCurrencies = new()
+                        {
+                            Currency.Tenge,
+                            Currency.Dollar
+                        }
+                    }
+                }
+            },
         };
 
         public static List<ParsingResult> ParseSumAndCurrency(string input)
@@ -63,7 +91,7 @@ namespace CurrencyConverter
 
         public static void Q()
         {
-            
+
         }
     }
 
@@ -82,7 +110,9 @@ namespace CurrencyConverter
 
         Rub,
 
-        Tenge
+        Tenge,
+
+        Dollar,
     }
 
     //public class Currency
@@ -199,5 +229,19 @@ namespace CurrencyConverter
         public bool IsAfter { get; set; }
 
         public string ISO { get; set; }
+    }
+
+    public class GroupSetting
+    {
+        public long ChatId { get; set; }
+
+        public List<Q> Qs { get; set; } = new();
+    }
+
+    public class Q
+    {
+        public Currency Currency { get; set; }
+
+        public List<Currency> TargetCurrencies { get; set; }
     }
 }
