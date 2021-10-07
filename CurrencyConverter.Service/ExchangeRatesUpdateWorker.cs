@@ -49,28 +49,10 @@ namespace CurrencyConverter.Service
 
                 var days = DateTime.Now - request.LastUpdate;
 
-                //_logger.LogInformation($"days: {days}");
-
-                //_logger.LogInformation($"{_configuration.GetSection("ExchangeRates:Url").Value}");
-
                 if (days > TimeSpan.FromDays(1))
                 {
                     _logger.LogInformation($"Курс протух, обновляем");
-
-                    //var client = new RestClient(_configuration.GetSection("ExchangeRateApi:Url").Value);
-
-                    //client.UseNewtonsoftJson(new JsonSerializerSettings
-                    //{
-                    //    ContractResolver = new DefaultContractResolver
-                    //    {
-                    //        NamingStrategy = new SnakeCaseNamingStrategy()
-                    //    },
-                    //});
-
-                    //var apiRequest = new RestRequest();
-
-                    //var response = await client.ExecuteGetAsync(apiRequest, stoppingToken);
-
+                    
                     var response = await _exchangeRateApiWrapper.GetContentAsync(cancellationToken);
 
                     request.LastUpdate = DateTime.Now;
