@@ -22,16 +22,23 @@ namespace CurrencyConverter.Service
 
         private readonly IConfiguration _configuration;
 
-        public ExchangeRatesUpdateWorker(ILogger<ExchangeRatesUpdateWorker> logger, IServiceScopeFactory serviceScopeFactory, IConfiguration configuration)
+        private readonly IExchangeRateApiClient _exchangeRateApiClient;
+
+        private readonly IExchangeRateApiWrapper _exchangeRateApiWrapper;
+
+        public ExchangeRatesUpdateWorker(ILogger<ExchangeRatesUpdateWorker> logger, IServiceScopeFactory serviceScopeFactory, IConfiguration configuration,
+            IExchangeRateApiClient exchangeRateApiClient, IExchangeRateApiWrapper exchangeRateApiWrapper)
         {
             _logger = logger;
             _serviceScopeFactory = serviceScopeFactory;
             _configuration = configuration;
+            _exchangeRateApiClient = exchangeRateApiClient;
+            _exchangeRateApiWrapper = exchangeRateApiWrapper;
         }
 
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+        protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            while (!stoppingToken.IsCancellationRequested)
+            while (!cancellationToken.IsCancellationRequested)
             {
                 using var scope = _serviceScopeFactory.CreateScope();
                 var context = scope.ServiceProvider.GetRequiredService<MyDbContext>();
@@ -50,27 +57,29 @@ namespace CurrencyConverter.Service
                 {
                     _logger.LogInformation($"Курс протух, обновляем");
 
-                    var client = new RestClient(_configuration.GetSection("ExchangeRates:Url").Value);
+                    //var client = new RestClient(_configuration.GetSection("ExchangeRateApi:Url").Value);
 
-                    client.UseNewtonsoftJson(new JsonSerializerSettings
-                    {
-                        ContractResolver = new DefaultContractResolver
-                        {
-                            NamingStrategy = new SnakeCaseNamingStrategy()
-                        },
-                    });
+                    //client.UseNewtonsoftJson(new JsonSerializerSettings
+                    //{
+                    //    ContractResolver = new DefaultContractResolver
+                    //    {
+                    //        NamingStrategy = new SnakeCaseNamingStrategy()
+                    //    },
+                    //});
 
-                    var apiRequest = new RestRequest();
+                    //var apiRequest = new RestRequest();
 
-                    var response = await client.ExecuteGetAsync(apiRequest, stoppingToken);
+                    //var response = await client.ExecuteGetAsync(apiRequest, stoppingToken);
+
+                    var response = await _exchangeRateApiWrapper.GetContentAsync(cancellationToken);
 
                     request.LastUpdate = DateTime.Now;
-                    request.Json = response.Content;
+                    request.Json = response;
 
-                    await context.SaveChangesAsync(stoppingToken);
+                    await context.SaveChangesAsync(cancellationToken);
                 }
 
-                await Task.Delay(1_000, stoppingToken);
+                await Task.Delay(5_000, cancellationToken);
             }
         }
     }
