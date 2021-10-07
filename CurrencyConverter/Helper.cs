@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using RestSharp;
 using RestSharp.Authenticators;
@@ -37,23 +38,95 @@ namespace CurrencyConverter
 
         public static List<GroupSetting> GroupSettings { get; set; } = new()
         {
-            new()
-            {
-                ChatId = 66227,
-                CurrencyConvertSettings = new()
-                {
-                    new()
-                    {
-                        Currency = Currency.Dollar,
-                        TargetCurrencies = new()
-                        {
-                            Currency.Tenge,
-                            Currency.Rub,
-                        }
-                    },
-                }
-            },
+            //new()
+            //{
+            //    ChatId = 66227,
+            //    CurrencyConvertSettings = new()
+            //    {
+            //        new()
+            //        {
+            //            Currency = Currency.Dollar,
+            //            TargetCurrencies = new()
+            //            {
+            //                Currency.Rub,
+            //                Currency.Tenge,
+            //            }
+            //        },
+            //        new()
+            //        {
+            //            Currency = Currency.Rub,
+            //            TargetCurrencies = new()
+            //            {
+            //                Currency.Tenge,
+            //            }
+            //        },
+            //        new()
+            //        {
+            //            Currency = Currency.Tenge,
+            //            TargetCurrencies = new()
+            //            {
+            //                Currency.Rub,
+            //            }
+            //        },
+            //    }
+            //},
         };
+
+        public static GroupSetting DefaultGroupSetting { get; set; } = new GroupSetting
+        {
+            ChatId = 66227,
+            CurrencyConvertSettings = new()
+            {
+                new()
+                {
+                    Currency = Currency.Dollar,
+                    TargetCurrencies = new()
+                    {
+                        Currency.Rub,
+                        Currency.Tenge,
+                    }
+                },
+                new()
+                {
+                    Currency = Currency.Rub,
+                    TargetCurrencies = new()
+                    {
+                        Currency.Tenge,
+                    }
+                },
+                new()
+                {
+                    Currency = Currency.Tenge,
+                    TargetCurrencies = new()
+                    {
+                        Currency.Rub,
+                    }
+                },
+            }
+        };
+
+        public static GroupSetting GetGroupSetting(long chatId)
+        {
+            return GroupSettings.FirstOrDefault(x => x.ChatId == chatId) ?? DefaultGroupSetting;
+        }
+
+        public static List<Currency> GetTargetCurrencies(this GroupSetting groupSetting, Currency currency)
+        {
+            return groupSetting.CurrencyConvertSettings.FirstOrDefault(x => x.Currency == currency).TargetCurrencies;
+        }
+
+        public static decimal GetExchangeRate(Currency sourceCurrency, Currency targetCurrency)
+        {
+            var source1 = JToken.Parse(TestRequest)["conversion_rates"][CurrencySettings[sourceCurrency].ISO].Value<decimal>();
+            
+            var target1 = JToken.Parse(TestRequest)["conversion_rates"][CurrencySettings[targetCurrency].ISO].Value<decimal>();
+            
+            var exchangeRate = target1 / source1;
+            
+            return exchangeRate;
+        }
+
+        //public static 
 
         public static List<ParsingResult> ParseSumAndCurrency(string input)
         {
@@ -86,10 +159,14 @@ namespace CurrencyConverter
             return currencySetting.Key;
         }
 
-        public static void Q()
-        {
-
-        }
+        public static string TestRequest = @"{
+ ""conversion_rates"":{
+  ""USD"":1,
+  ""AED"":3.67,
+  ""KZT"":423.98,
+  ""RUB"":72.47
+ }
+}";
     }
 
     public class ParsingResult

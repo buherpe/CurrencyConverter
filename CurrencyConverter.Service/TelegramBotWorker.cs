@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -105,33 +106,23 @@ namespace CurrencyConverter.Service
 
                 foreach (var sumAndCurrency in sumAndCurrencies)
                 {
+                    var groupSetting = Helper.GetGroupSetting(update.Message.Chat.Id);
+                    var targetCurrencies = groupSetting.GetTargetCurrencies(sumAndCurrency.Currency);
+                    var sums = new List<string>();
 
-
-
-                    var exchangeRate = JToken.Parse(request.Json)["conversion_rates"]["KZT"].Value<decimal>() / JToken.Parse(request.Json)["conversion_rates"]["RUB"].Value<decimal>();
-
-                    var sum = 0m;
-                    var symbol = $"";
-
-                    switch (sumAndCurrency.Currency)
+                    foreach (var targetCurrency in targetCurrencies)
                     {
-                        case Currency.None:
-                            break;
-                        case Currency.Rub:
-                            sum = sumAndCurrency.Sum * exchangeRate;
-                            symbol = Helper.CurrencySettings[Currency.Tenge].Symbols.FirstOrDefault();
+                        var source1 = JToken.Parse(request.Json)["conversion_rates"][Helper.CurrencySettings[sumAndCurrency.Currency].ISO].Value<decimal>();
+                        var target1 = JToken.Parse(request.Json)["conversion_rates"][Helper.CurrencySettings[targetCurrency].ISO].Value<decimal>();
+                        var exchangeRate2 = target1 / source1;
 
-                            break;
-                        case Currency.Tenge:
-                            sum = sumAndCurrency.Sum / exchangeRate;
-                            symbol = Helper.CurrencySettings[Currency.Rub].Symbols.FirstOrDefault();
+                        var sum = sumAndCurrency.Sum * exchangeRate2;
+                        var symbol = Helper.CurrencySettings[targetCurrency].Symbols.FirstOrDefault();
 
-                            break;
-                        default:
-                            throw new ArgumentOutOfRangeException();
+                        sums.Add($"{Math.Round(sum, 0):N0}{symbol}");
                     }
 
-                    str += $"{Math.Round(sum, 0):N0}{symbol}\n";
+                    str += $"{string.Join(" | ", sums)}\n";
                 }
 
                 await botClient.SendTextMessageAsync(chatId, $"{str}", cancellationToken: cancellationToken, replyToMessageId: update.Message.MessageId);
