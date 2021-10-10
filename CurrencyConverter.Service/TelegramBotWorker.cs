@@ -88,7 +88,7 @@ namespace CurrencyConverter.Service
 
                 var chatId = update.Message.Chat.Id;
 
-                _logger.LogInformation($"Чат: {chatId}, текст: {update.Message.Text}");
+                _logger.LogInformation($"Чат: {chatId}, юзер: {update.Message.From.Id}, текст: {update.Message.Text}");
 
                 var sumAndCurrencies = Helper.ParseSumAndCurrency(update.Message.Text);
 
