@@ -33,28 +33,13 @@ namespace CurrencyConverter.Service
             _configuration = configuration;
         }
 
-        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
-        {
-            while (!stoppingToken.IsCancellationRequested)
-            {
-                if (_startup)
-                {
-                    await StartTgBot();
-
-                    _startup = false;
-                }
-
-                await Task.Delay(5_000, stoppingToken);
-            }
-        }
-
-        public async Task StartTgBot()
+        protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
             _logger.LogInformation($"Запускаем тг бота");
 
             var botClient = new TelegramBotClient(_configuration.GetSection("Telegram:Token").Value);
 
-            var me = await botClient.GetMeAsync();
+            var me = await botClient.GetMeAsync(cancellationToken);
 
             _logger.LogInformation($"Hello, World! I am user {me.Id} and my name is {me.FirstName}.");
 
@@ -66,13 +51,7 @@ namespace CurrencyConverter.Service
 
         private Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
         {
-            var errorMessage = exception switch
-            {
-                ApiRequestException apiRequestException => $"Telegram API Error:\n[{apiRequestException.ErrorCode}]\n{apiRequestException.Message}",
-                _ => exception.ToString()
-            };
-
-            _logger.LogInformation(errorMessage);
+            _logger.LogError(exception, $"HandleErrorAsync");
 
             return Task.CompletedTask;
         }

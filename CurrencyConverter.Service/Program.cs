@@ -3,8 +3,11 @@ using Microsoft.Extensions.Hosting;
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Prometheus;
 
 namespace CurrencyConverter.Service
 {
@@ -23,31 +26,48 @@ namespace CurrencyConverter.Service
                         .UseNpgsql(hostContext.Configuration.GetConnectionString("DefaultConnection"))
                         .UseSnakeCaseNamingConvention());
 
+                    services.AddHostedService<PrometheusService>();
                     services.AddHostedService<ExchangeRatesUpdateWorker>();
                     services.AddHostedService<TelegramBotWorker>();
                     services.AddSingleton<IExchangeRateApiClient, ExchangeRateApiComClient>();
                     services.AddSingleton<IExchangeRateApiWrapper, ExchangeRateApiComWrapper>();
+
                 });
     }
 
-    public class Request
+    public class PrometheusService : BackgroundService
     {
-        public int Id { get; set; }
+        private readonly ILogger<PrometheusService> _logger;
 
-        public DateTime LastUpdate { get; set; }
+        private readonly IServiceScopeFactory _serviceScopeFactory;
 
-        public string Json { get; set; }
-    }
+        private readonly IConfiguration _configuration;
 
-    public class MyDbContext : DbContext
-    {
-        public DbSet<Request> Requests { get; set; }
+        private static readonly Counter TickTock = Metrics.CreateCounter("sampleapp_ticks_total", "Just keeps on ticking");
 
-        public Guid Guid { get; set; } = Guid.NewGuid();
-
-        public MyDbContext(DbContextOptions<MyDbContext> options)
-            : base(options)
+        public PrometheusService(ILogger<PrometheusService> logger, IServiceScopeFactory serviceScopeFactory, IConfiguration configuration)
         {
+            _logger = logger;
+            _serviceScopeFactory = serviceScopeFactory;
+            _configuration = configuration;
+        }
+
+        protected override async Task ExecuteAsync(CancellationToken cancellationToken)
+        {
+            var hostname = _configuration.GetSection("Prometheus:Hostname").Value;
+            var port = int.Parse(_configuration.GetSection("Prometheus:Port").Value);
+
+            _logger.LogInformation($"Hostname: {hostname}, port: {port}");
+
+            var server = new MetricServer(hostname, port);
+            server.Start();
+
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                TickTock.Inc();
+
+                await Task.Delay(1000, cancellationToken);
+            }
         }
     }
 }

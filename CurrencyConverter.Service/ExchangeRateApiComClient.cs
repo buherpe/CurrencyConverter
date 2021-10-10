@@ -12,13 +12,13 @@ namespace CurrencyConverter.Service
 
     public class ExchangeRateApiComClient : IExchangeRateApiClient
     {
-        private readonly ILogger<ExchangeRatesUpdateWorker> _logger;
+        private readonly ILogger<ExchangeRateApiComClient> _logger;
 
         private readonly IServiceScopeFactory _serviceScopeFactory;
 
         private readonly IConfiguration _configuration;
 
-        public ExchangeRateApiComClient(ILogger<ExchangeRatesUpdateWorker> logger, IServiceScopeFactory serviceScopeFactory, IConfiguration configuration)
+        public ExchangeRateApiComClient(ILogger<ExchangeRateApiComClient> logger, IServiceScopeFactory serviceScopeFactory, IConfiguration configuration)
         {
             _logger = logger;
             _serviceScopeFactory = serviceScopeFactory;
