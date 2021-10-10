@@ -18,7 +18,7 @@ namespace CurrencyConverter
             [Currency.Rub] = new CurrencySetting
             {
                 IsAfter = true,
-                Symbols = new List<string> { "р", "руб", "руб.", "р.", "рублей", "рубля" },
+                Symbols = new List<string> { "р", "руб", "руб.", "р.", "рублей", "рубля", "₽", "rub" },
                 ISO = "RUB",
             },
             [Currency.Tenge] = new CurrencySetting

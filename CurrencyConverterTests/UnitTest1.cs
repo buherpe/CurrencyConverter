@@ -397,9 +397,17 @@ namespace CurrencyConverterTests
         }
 
         [TestMethod]
-        public void Test009()
+        public void Test009_Todo()
         {
-            
+            var actual = Helper.ParseSumAndCurrency("5к руб");
+            Assert.AreEqual(1, actual.Count);
+            Assert.AreEqual(5000m, actual[0].Sum);
+            Assert.AreEqual(Currency.Rub, actual[0].Currency);
+
+            actual = Helper.ParseSumAndCurrency("150к руб");
+            Assert.AreEqual(1, actual.Count);
+            Assert.AreEqual(150000m, actual[0].Sum);
+            Assert.AreEqual(Currency.Rub, actual[0].Currency);
         }
     }
 }
