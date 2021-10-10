@@ -8,6 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
+using Prometheus;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Extensions.Polling;
@@ -23,6 +24,8 @@ namespace CurrencyConverter.Service
         private readonly IServiceScopeFactory _serviceScopeFactory;
 
         private readonly IConfiguration _configuration;
+
+        private static readonly Histogram HandleUpdateAsyncDuration = Metrics.CreateHistogram("TelegramBotWorker_HandleUpdateAsyncDuration", "Histogram of login call processing durations.");
 
         public TelegramBotWorker(ILogger<TelegramBotWorker> logger, IServiceScopeFactory serviceScopeFactory, IConfiguration configuration)
         {
@@ -56,6 +59,8 @@ namespace CurrencyConverter.Service
 
         private async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
         {
+            using var handleUpdateAsyncDurationTimer = HandleUpdateAsyncDuration.NewTimer();
+            
             try
             {
                 if (update.Type != UpdateType.Message)
