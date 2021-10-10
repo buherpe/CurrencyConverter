@@ -24,8 +24,6 @@ namespace CurrencyConverter.Service
 
         private readonly IConfiguration _configuration;
 
-        private bool _startup = true;
-
         public TelegramBotWorker(ILogger<TelegramBotWorker> logger, IServiceScopeFactory serviceScopeFactory, IConfiguration configuration)
         {
             _logger = logger;
