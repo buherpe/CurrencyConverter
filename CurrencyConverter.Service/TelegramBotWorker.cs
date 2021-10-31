@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -101,7 +102,16 @@ namespace CurrencyConverter.Service
                         var sum = sumAndCurrency.Sum * exchangeRate2;
                         var symbol = Helper.CurrencySettings[targetCurrency].Symbols.FirstOrDefault();
 
-                        sums.Add($"{Math.Round(sum, 0):N0}{symbol}");
+                        if (sum > 10)
+                        {
+                            sums.Add($"{Math.Round(sum, 0).ToString("N0", CultureInfo.InvariantCulture)}{symbol}");
+                        }
+                        else
+                        {
+                            sums.Add($"{Math.Round(sum, 2).ToString("N2", CultureInfo.InvariantCulture)}{symbol}");
+                        }
+
+                        
                     }
 
                     str += $"{string.Join(" | ", sums)}\n";
