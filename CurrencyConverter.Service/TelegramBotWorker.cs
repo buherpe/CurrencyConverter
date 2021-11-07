@@ -21,7 +21,6 @@ namespace CurrencyConverter.Service
     public class TelegramBotWorker : BackgroundService
     {
         private readonly ILogger<TelegramBotWorker> _logger;
-
         private readonly IServiceScopeFactory _serviceScopeFactory;
 
         private readonly IConfiguration _configuration;
