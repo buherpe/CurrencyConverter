@@ -1,13 +1,12 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System;
-using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Helpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using Prometheus;
+using Serilog;
 
 namespace CurrencyConverter.Service
 {
@@ -15,11 +14,14 @@ namespace CurrencyConverter.Service
     {
         public static void Main(string[] args)
         {
+            Serilog.Log.Logger = Helpers.Helper.GetDefaultLoggerConfig();
+
             CreateHostBuilder(args).Build().Run();
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
+                .UseSerilog()
                 .ConfigureServices((hostContext, services) =>
                 {
                     services.AddDbContext<MyDbContext>(options => options
@@ -31,13 +33,12 @@ namespace CurrencyConverter.Service
                     services.AddHostedService<TelegramBotWorker>();
                     services.AddSingleton<IExchangeRateApiClient, ExchangeRateApiComClient>();
                     services.AddSingleton<IExchangeRateApiWrapper, ExchangeRateApiComWrapper>();
-
                 });
     }
 
     public class PrometheusService : BackgroundService
     {
-        private readonly ILogger<PrometheusService> _logger;
+        private readonly ILogger _log = Log.ForContext<PrometheusService>();
 
         private readonly IServiceScopeFactory _serviceScopeFactory;
 
@@ -45,9 +46,8 @@ namespace CurrencyConverter.Service
 
         private static readonly Counter TickTock = Metrics.CreateCounter("sampleapp_ticks_total", "Just keeps on ticking");
 
-        public PrometheusService(ILogger<PrometheusService> logger, IServiceScopeFactory serviceScopeFactory, IConfiguration configuration)
+        public PrometheusService(IServiceScopeFactory serviceScopeFactory, IConfiguration configuration)
         {
-            _logger = logger;
             _serviceScopeFactory = serviceScopeFactory;
             _configuration = configuration;
         }
@@ -57,8 +57,8 @@ namespace CurrencyConverter.Service
             var hostname = _configuration.GetSection("Prometheus:Hostname").Value;
             var port = int.Parse(_configuration.GetSection("Prometheus:Port").Value);
 
-            _logger.LogInformation($"Hostname: {hostname}, port: {port}");
-
+            _log.Info($"Hostname: {hostname}, port: {port}");
+            
             var server = new MetricServer(hostname, port);
             server.Start();
 

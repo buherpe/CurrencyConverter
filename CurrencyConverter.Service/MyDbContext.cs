@@ -7,8 +7,6 @@ namespace CurrencyConverter.Service
     {
         public DbSet<Request> Requests { get; set; }
 
-        public Guid Guid { get; set; } = Guid.NewGuid();
-
         public MyDbContext(DbContextOptions<MyDbContext> options)
             : base(options)
         {
