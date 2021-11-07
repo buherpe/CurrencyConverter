@@ -1,22 +1,23 @@
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Helpers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using RestSharp;
 using RestSharp.Serializers.NewtonsoftJson;
+using Serilog;
 
 namespace CurrencyConverter.Service
 {
     public class ExchangeRatesUpdateWorker : BackgroundService
     {
-        private readonly ILogger<ExchangeRatesUpdateWorker> _logger;
+        private readonly ILogger _log = Log.ForContext<ExchangeRatesUpdateWorker>();
 
         private readonly IServiceScopeFactory _serviceScopeFactory;
 
@@ -26,10 +27,9 @@ namespace CurrencyConverter.Service
 
         private readonly IExchangeRateApiWrapper _exchangeRateApiWrapper;
 
-        public ExchangeRatesUpdateWorker(ILogger<ExchangeRatesUpdateWorker> logger, IServiceScopeFactory serviceScopeFactory, IConfiguration configuration,
+        public ExchangeRatesUpdateWorker(IServiceScopeFactory serviceScopeFactory, IConfiguration configuration,
             IExchangeRateApiClient exchangeRateApiClient, IExchangeRateApiWrapper exchangeRateApiWrapper)
         {
-            _logger = logger;
             _serviceScopeFactory = serviceScopeFactory;
             _configuration = configuration;
             _exchangeRateApiClient = exchangeRateApiClient;
@@ -51,7 +51,7 @@ namespace CurrencyConverter.Service
 
                 if (days > TimeSpan.FromDays(1))
                 {
-                    _logger.LogInformation($"Курс протух, обновляем");
+                    _log.Info($"Курс протух, обновляем");
                     
                     var response = await _exchangeRateApiWrapper.GetContentAsync(cancellationToken);
 
@@ -64,26 +64,5 @@ namespace CurrencyConverter.Service
                 await Task.Delay(5_000, cancellationToken);
             }
         }
-    }
-
-    public class Rootobject
-    {
-        public string Result { get; set; }
-
-        public string Documentation { get; set; }
-
-        public string TermsOfUse { get; set; }
-
-        public int TimeLastUpdateUnix { get; set; }
-
-        public string TimeLastUpdateUtc { get; set; }
-
-        public int TimeNextUpdateUnix { get; set; }
-
-        public string TimeNextUpdateUtc { get; set; }
-
-        public string BaseCode { get; set; }
-
-        public Dictionary<string, decimal> ConversionRates { get; set; }
     }
 }

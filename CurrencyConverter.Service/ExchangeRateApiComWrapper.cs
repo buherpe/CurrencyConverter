@@ -2,11 +2,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using RestSharp;
 using RestSharp.Serializers.NewtonsoftJson;
+using Serilog;
 
 namespace CurrencyConverter.Service
 {
@@ -17,15 +17,14 @@ namespace CurrencyConverter.Service
 
     public class ExchangeRateApiComWrapper : IExchangeRateApiWrapper
     {
-        private readonly ILogger<ExchangeRateApiComWrapper> _logger;
+        private readonly ILogger _log = Log.ForContext<ExchangeRateApiComWrapper>();
 
         private readonly IServiceScopeFactory _serviceScopeFactory;
 
         private readonly IConfiguration _configuration;
 
-        public ExchangeRateApiComWrapper(ILogger<ExchangeRateApiComWrapper> logger, IServiceScopeFactory serviceScopeFactory, IConfiguration configuration)
+        public ExchangeRateApiComWrapper(IServiceScopeFactory serviceScopeFactory, IConfiguration configuration)
         {
-            _logger = logger;
             _serviceScopeFactory = serviceScopeFactory;
             _configuration = configuration;
         }
