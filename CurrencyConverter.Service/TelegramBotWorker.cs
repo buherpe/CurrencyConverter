@@ -4,12 +4,13 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Helpers;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 using Prometheus;
+using Serilog;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Extensions.Polling;
@@ -20,29 +21,29 @@ namespace CurrencyConverter.Service
 {
     public class TelegramBotWorker : BackgroundService
     {
-        private readonly ILogger<TelegramBotWorker> _logger;
+        private readonly ILogger _log = Log.ForContext<TelegramBotWorker>();
+
         private readonly IServiceScopeFactory _serviceScopeFactory;
 
         private readonly IConfiguration _configuration;
 
         private static readonly Histogram HandleUpdateAsyncDuration = Metrics.CreateHistogram("TelegramBotWorker_HandleUpdateAsyncDuration", "Histogram of login call processing durations.");
 
-        public TelegramBotWorker(ILogger<TelegramBotWorker> logger, IServiceScopeFactory serviceScopeFactory, IConfiguration configuration)
+        public TelegramBotWorker(IServiceScopeFactory serviceScopeFactory, IConfiguration configuration)
         {
-            _logger = logger;
             _serviceScopeFactory = serviceScopeFactory;
             _configuration = configuration;
         }
 
         protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            _logger.LogInformation($"Запускаем тг бота");
+            _log.Info($"Запускаем тг бота");
 
             var botClient = new TelegramBotClient(_configuration.GetSection("Telegram:Token").Value);
 
             var me = await botClient.GetMeAsync(cancellationToken);
 
-            _logger.LogInformation($"Hello, World! I am user {me.Id} and my name is {me.FirstName}.");
+            _log.Info($"Hello, World! I am user {me.Id} and my name is {me.FirstName}.");
 
             using var cts = new CancellationTokenSource();
 
@@ -52,7 +53,7 @@ namespace CurrencyConverter.Service
 
         private Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
         {
-            _logger.LogError(exception, $"HandleErrorAsync");
+            _log.Error(exception, $"HandleErrorAsync");
 
             return Task.CompletedTask;
         }
@@ -60,7 +61,7 @@ namespace CurrencyConverter.Service
         private async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
         {
             using var handleUpdateAsyncDurationTimer = HandleUpdateAsyncDuration.NewTimer();
-            
+
             try
             {
                 if (update.Type != UpdateType.Message)
@@ -70,7 +71,7 @@ namespace CurrencyConverter.Service
 
                 var chatId = update.Message.Chat.Id;
 
-                _logger.LogInformation($"Чат: {chatId}, юзер: {update.Message.From.Id}, текст: {update.Message.Text}");
+                _log.Info($"Чат: {chatId}, юзер: {update.Message.From.Id}, текст: {update.Message.Text}");
 
                 var sumAndCurrencies = Helper.ParseSumAndCurrency(update.Message.Text);
 
@@ -109,8 +110,6 @@ namespace CurrencyConverter.Service
                         {
                             sums.Add($"{Math.Round(sum, 2).ToString("N2", CultureInfo.InvariantCulture)}{symbol}");
                         }
-
-                        
                     }
 
                     str += $"{string.Join(" | ", sums)}\n";
@@ -120,7 +119,7 @@ namespace CurrencyConverter.Service
             }
             catch (Exception e)
             {
-                _logger.LogError(e, $"Ошибка HandleUpdateAsync");
+                _log.Error(e, $"Ошибка HandleUpdateAsync");
             }
         }
     }

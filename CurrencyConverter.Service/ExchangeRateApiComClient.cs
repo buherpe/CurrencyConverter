@@ -24,10 +24,5 @@ namespace CurrencyConverter.Service
             _serviceScopeFactory = serviceScopeFactory;
             _configuration = configuration;
         }
-
-        public async Task Q()
-        {
-
-        }
     }
 }
