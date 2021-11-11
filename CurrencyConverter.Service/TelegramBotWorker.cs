@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json.Linq;
+using Polly;
 using Prometheus;
 using Serilog;
 using Telegram.Bot;
@@ -37,25 +38,47 @@ namespace CurrencyConverter.Service
 
         protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            _log.Info($"Запускаем тг бота");
+            try
+            {
+                _log.Info($"Запускаем тг бота");
 
-            var botClient = new TelegramBotClient(_configuration.GetSection("Telegram:Token").Value);
+                var botClient = new TelegramBotClient(_configuration.GetSection("Telegram:Token").Value);
 
-            var me = await botClient.GetMeAsync(cancellationToken);
+                var policy = Policy.Handle<Exception>().WaitAndRetryForeverAsync(retryAttempt =>
+                {
+                    var waitSeconds = TimeSpan.FromSeconds(Math.Pow(2, retryAttempt));
 
-            _log.Info($"Hello, World! I am user {me.Id} and my name is {me.FirstName}.");
+                    if (waitSeconds.TotalSeconds > 60)
+                    {
+                        waitSeconds = TimeSpan.FromSeconds(60);
+                    }
 
-            using var cts = new CancellationTokenSource();
+                    _log.Info($"Попытка: {retryAttempt}, ждем {waitSeconds.TotalSeconds}с");
+                    return waitSeconds;
+                });
 
-            // StartReceiving does not block the caller thread. Receiving is done on the ThreadPool.
-            botClient.StartReceiving(new DefaultUpdateHandler(HandleUpdateAsync, HandleErrorAsync), cts.Token);
+                var me = await policy.ExecuteAsync(async t => await botClient.GetMeAsync(cancellationToken), cancellationToken);
+
+                //var me = await botClient.GetMeAsync(cancellationToken);
+
+                _log.Info($"Hello, World! I am user {me.Id} and my name is {me.FirstName}.");
+
+                using var cts = new CancellationTokenSource();
+
+                // StartReceiving does not block the caller thread. Receiving is done on the ThreadPool.
+                botClient.StartReceiving(new DefaultUpdateHandler(HandleUpdateAsync, HandleErrorAsync), cts.Token);
+            }
+            catch (Exception e)
+            {
+                _log.Error(e);
+            }
         }
 
-        private Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
+        private async Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
         {
             _log.Error(exception, $"HandleErrorAsync");
 
-            return Task.CompletedTask;
+            await Task.Delay(1000, cancellationToken);
         }
 
         private async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
