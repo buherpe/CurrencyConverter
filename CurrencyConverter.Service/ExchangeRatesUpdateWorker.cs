@@ -49,7 +49,7 @@ namespace CurrencyConverter.Service
 
                     //_logger.LogInformation("Worker running at: {time}, context guid: {contextGuid}, request last update: {rlu}", DateTimeOffset.Now, context.Guid, request.LastUpdate);
 
-                    var days = DateTime.Now - request.LastUpdate;
+                    var days = DateTime.UtcNow - request.LastUpdate;
 
                     if (days > TimeSpan.FromDays(1))
                     {
@@ -57,7 +57,7 @@ namespace CurrencyConverter.Service
                     
                         var response = await _exchangeRateApiWrapper.GetContentAsync(cancellationToken);
 
-                        request.LastUpdate = DateTime.Now;
+                        request.LastUpdate = DateTime.UtcNow;
                         request.Json = response;
 
                         context.Requests.Update(request);
