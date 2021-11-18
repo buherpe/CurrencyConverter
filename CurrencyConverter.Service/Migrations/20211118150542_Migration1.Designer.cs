@@ -10,7 +10,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace CurrencyConverter.Service.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    [Migration("20211118145622_Migration1")]
+    [Migration("20211118150542_Migration1")]
     partial class Migration1
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -26,21 +26,17 @@ namespace CurrencyConverter.Service.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
-                        .HasColumnName("id")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<string>("Json")
-                        .HasColumnType("text")
-                        .HasColumnName("json");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("LastUpdate")
-                        .HasColumnType("timestamp without time zone")
-                        .HasColumnName("last_update");
+                        .HasColumnType("timestamp without time zone");
 
-                    b.HasKey("Id")
-                        .HasName("pk_requests");
+                    b.HasKey("Id");
 
-                    b.ToTable("requests");
+                    b.ToTable("Requests");
                 });
 #pragma warning restore 612, 618
         }

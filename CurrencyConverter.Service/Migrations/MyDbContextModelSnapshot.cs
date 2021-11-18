@@ -24,21 +24,17 @@ namespace CurrencyConverter.Service.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
-                        .HasColumnName("id")
                         .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
 
                     b.Property<string>("Json")
-                        .HasColumnType("text")
-                        .HasColumnName("json");
+                        .HasColumnType("text");
 
                     b.Property<DateTime>("LastUpdate")
-                        .HasColumnType("timestamp without time zone")
-                        .HasColumnName("last_update");
+                        .HasColumnType("timestamp without time zone");
 
-                    b.HasKey("Id")
-                        .HasName("pk_requests");
+                    b.HasKey("Id");
 
-                    b.ToTable("requests");
+                    b.ToTable("Requests");
                 });
 #pragma warning restore 612, 618
         }

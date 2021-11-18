@@ -40,25 +40,34 @@ namespace CurrencyConverter.Service
         {
             while (!cancellationToken.IsCancellationRequested)
             {
-                using var scope = _serviceScopeFactory.CreateScope();
-                var context = scope.ServiceProvider.GetRequiredService<MyDbContext>();
-
-                var request = context.Requests.FirstOrDefault(x => x.Id == 1) ?? new Request();
-
-                //_logger.LogInformation("Worker running at: {time}, context guid: {contextGuid}, request last update: {rlu}", DateTimeOffset.Now, context.Guid, request.LastUpdate);
-
-                var days = DateTime.Now - request.LastUpdate;
-
-                if (days > TimeSpan.FromDays(1))
+                try
                 {
-                    _log.Info($"Курс протух, обновляем");
+                    using var scope = _serviceScopeFactory.CreateScope();
+                    var context = scope.ServiceProvider.GetRequiredService<MyDbContext>();
+
+                    var request = context.Requests.FirstOrDefault(x => x.Id == 1) ?? new Request();
+
+                    //_logger.LogInformation("Worker running at: {time}, context guid: {contextGuid}, request last update: {rlu}", DateTimeOffset.Now, context.Guid, request.LastUpdate);
+
+                    var days = DateTime.Now - request.LastUpdate;
+
+                    if (days > TimeSpan.FromDays(1))
+                    {
+                        _log.Info($"Курс протух, обновляем");
                     
-                    var response = await _exchangeRateApiWrapper.GetContentAsync(cancellationToken);
+                        var response = await _exchangeRateApiWrapper.GetContentAsync(cancellationToken);
 
-                    request.LastUpdate = DateTime.Now;
-                    request.Json = response;
+                        request.LastUpdate = DateTime.Now;
+                        request.Json = response;
 
-                    await context.SaveChangesAsync(cancellationToken);
+                        context.Requests.Update(request);
+
+                        await context.SaveChangesAsync(cancellationToken);
+                    }
+                }
+                catch (Exception e)
+                {
+                    _log.Error(e);
                 }
 
                 await Task.Delay(5_000, cancellationToken);

@@ -25,8 +25,7 @@ namespace CurrencyConverter.Service
                 .ConfigureServices((hostContext, services) =>
                 {
                     services.AddDbContext<MyDbContext>(options => options
-                        .UseNpgsql(hostContext.Configuration.GetConnectionString("DefaultConnection"))
-                        .UseSnakeCaseNamingConvention());
+                        .UseNpgsql(hostContext.Configuration.GetConnectionString("DefaultConnection")));
 
                     services.AddHostedService<PrometheusService>();
                     services.AddHostedService<ExchangeRatesUpdateWorker>();
