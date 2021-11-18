@@ -75,31 +75,33 @@ namespace CurrencyConverter
         public static GroupSetting DefaultGroupSetting { get; set; } = new GroupSetting
         {
             ChatId = 66227,
-            CurrencyConvertSettings = new()
+            CurrencyConvertSettings = new List<CurrencyConvertSetting>
             {
-                new()
+                new CurrencyConvertSetting
                 {
                     Currency = Currency.Dollar,
-                    TargetCurrencies = new()
+                    TargetCurrencies = new List<Currency>
                     {
                         Currency.Rub,
                         Currency.Tenge,
                     }
                 },
-                new()
+                new CurrencyConvertSetting
                 {
                     Currency = Currency.Rub,
-                    TargetCurrencies = new()
+                    TargetCurrencies = new List<Currency>
                     {
                         Currency.Tenge,
+                        Currency.Dollar,
                     }
                 },
-                new()
+                new CurrencyConvertSetting
                 {
                     Currency = Currency.Tenge,
-                    TargetCurrencies = new()
+                    TargetCurrencies = new List<Currency>
                     {
                         Currency.Rub,
+                        Currency.Dollar,
                     }
                 },
             }
@@ -310,6 +312,10 @@ namespace CurrencyConverter
         public long ChatId { get; set; }
 
         public List<CurrencyConvertSetting> CurrencyConvertSettings { get; set; } = new();
+
+        //public Currency SourceCurrency { get; set; }
+
+        //public List<Currency> TargetCurrencies { get; set; }
     }
 
     public class CurrencyConvertSetting
