@@ -31,7 +31,7 @@ namespace CurrencyConverter
             {
                 IsAfter = true,
                 IsBefore = true,
-                Symbols = new List<string> { "$", "д", "д.", "дол", "долларов", "доллара", "доллар", "баксов", "бакса", "бакс" },
+                Symbols = new List<string> { "д", "$", "д.", "дол", "долларов", "доллара", "доллар", "баксов", "бакса", "бакс" },
                 ISO = "USD",
             },
         };
