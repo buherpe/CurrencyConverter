@@ -66,7 +66,7 @@ namespace CurrencyConverter.Service
                 using var cts = new CancellationTokenSource();
 
                 // StartReceiving does not block the caller thread. Receiving is done on the ThreadPool.
-                botClient.StartReceiving(new DefaultUpdateHandler(HandleUpdateAsync, HandleErrorAsync), cts.Token);
+                botClient.StartReceiving(new DefaultUpdateHandler(HandleUpdateAsync, HandleErrorAsync), cancellationToken: cts.Token);
             }
             catch (Exception e)
             {
