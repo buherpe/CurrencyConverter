@@ -138,7 +138,7 @@ namespace CurrencyConverter.Service
                     str += $"{string.Join(" | ", sums)}\n";
                 }
 
-                await botClient.SendTextMessageAsync(chatId, $"{str}", cancellationToken: cancellationToken, replyToMessageId: update.Message.MessageId);
+                await botClient.SendTextMessageAsync(chatId, $"{str}", cancellationToken: cancellationToken, replyToMessageId: update.Message.MessageId, disableNotification: true);
             }
             catch (Exception e)
             {
