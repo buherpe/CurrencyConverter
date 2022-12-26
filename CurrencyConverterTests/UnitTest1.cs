@@ -93,6 +93,12 @@ namespace CurrencyConverterTests
 
             actual = Helper.ParseSumAndCurrency("ð 7 000");
             Assert.AreEqual(0, actual.Count);
+
+
+            actual = Helper.ParseSumAndCurrency("5000ð.");
+            Assert.AreEqual(1, actual.Count);
+            Assert.AreEqual(5000m, actual[0].Sum);
+            Assert.AreEqual(Currency.Rub, actual[0].Currency);
         }
 
         [TestMethod]
@@ -374,27 +380,27 @@ namespace CurrencyConverterTests
             Assert.AreEqual(Currency.Dollar, actual[0].Currency);
         }
 
-        [TestMethod]
-        public void Test008()
-        {
-            var actual = Helper.GetExchangeRate(Currency.Dollar, Currency.Rub);
-            Assert.AreEqual(72.47m, actual);
+        //[TestMethod]
+        //public void Test008()
+        //{
+        //    var actual = Helper.GetExchangeRate(Currency.Dollar, Currency.Rub);
+        //    Assert.AreEqual(72.47m, actual);
 
-            actual = Helper.GetExchangeRate(Currency.Dollar, Currency.Tenge);
-            Assert.AreEqual(423.98m, actual);
+        //    actual = Helper.GetExchangeRate(Currency.Dollar, Currency.Tenge);
+        //    Assert.AreEqual(423.98m, actual);
 
-            actual = Helper.GetExchangeRate(Currency.Rub, Currency.Tenge);
-            Assert.AreEqual(5.8504208638057127087070511936m, actual);
+        //    actual = Helper.GetExchangeRate(Currency.Rub, Currency.Tenge);
+        //    Assert.AreEqual(5.8504208638057127087070511936m, actual);
 
-            actual = Helper.GetExchangeRate(Currency.Tenge, Currency.Rub);
-            Assert.AreEqual(0.1709278739563186942780319826m, actual);
+        //    actual = Helper.GetExchangeRate(Currency.Tenge, Currency.Rub);
+        //    Assert.AreEqual(0.1709278739563186942780319826m, actual);
 
-            actual = Helper.GetExchangeRate(Currency.Tenge, Currency.Dollar);
-            Assert.AreEqual(0.0023586018208406056889475919m, actual);
+        //    actual = Helper.GetExchangeRate(Currency.Tenge, Currency.Dollar);
+        //    Assert.AreEqual(0.0023586018208406056889475919m, actual);
 
-            actual = Helper.GetExchangeRate(Currency.Rub, Currency.Dollar);
-            Assert.AreEqual(0.0137988133020560231820063475m, actual);
-        }
+        //    actual = Helper.GetExchangeRate(Currency.Rub, Currency.Dollar);
+        //    Assert.AreEqual(0.0137988133020560231820063475m, actual);
+        //}
 
         [TestMethod]
         public void Test009_Todo()

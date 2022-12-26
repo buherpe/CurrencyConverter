@@ -18,20 +18,23 @@ namespace CurrencyConverter
             [Currency.Rub] = new CurrencySetting
             {
                 IsAfter = true,
-                Symbols = new List<string> { "р", "руб", "руб.", "р.", "рублей", "рубля", "₽", "rub" },
+                //Symbols = new List<string> { "р", "руб", "руб.", "р.", "рублей", "рубля", "₽", "rub" },
+                Symbols = @"р|руб|руб\.|р\.|рублей|рубля|₽|rub",
                 ISO = "RUB",
             },
             [Currency.Tenge] = new CurrencySetting
             {
                 IsAfter = true,
-                Symbols = new List<string> { "т", "тнг", "тнг.", "т.", "тенге" },
+                //Symbols = new List<string> { "т", "тнг", "тнг.", "т.", "тенге" },
+                Symbols = @"т|тнг|тнг\.|т\.|тенге",
                 ISO = "KZT",
             },
             [Currency.Dollar] = new CurrencySetting
             {
                 IsAfter = true,
                 IsBefore = true,
-                Symbols = new List<string> { "д", "$", "д.", "дол", "долларов", "доллара", "доллар", "баксов", "бакса", "бакс" },
+                //Symbols = new List<string> { "д", "$", "д.", "дол", "долларов", "доллара", "доллар", "баксов", "бакса", "бакс" },
+                Symbols = @"д|\$|д\.|дол|долларов|доллара|доллар|баксов|бакса|бакс",
                 ISO = "USD",
             },
         };
@@ -117,16 +120,16 @@ namespace CurrencyConverter
             return groupSetting.CurrencyConvertSettings.FirstOrDefault(x => x.Currency == currency).TargetCurrencies;
         }
 
-        public static decimal GetExchangeRate(Currency sourceCurrency, Currency targetCurrency)
-        {
-            var source1 = JToken.Parse(TestRequest)["conversion_rates"][CurrencySettings[sourceCurrency].ISO].Value<decimal>();
+        //public static decimal GetExchangeRate(Currency sourceCurrency, Currency targetCurrency)
+        //{
+        //    var source1 = JToken.Parse(TestRequest)["conversion_rates"][CurrencySettings[sourceCurrency].ISO].Value<decimal>();
             
-            var target1 = JToken.Parse(TestRequest)["conversion_rates"][CurrencySettings[targetCurrency].ISO].Value<decimal>();
+        //    var target1 = JToken.Parse(TestRequest)["conversion_rates"][CurrencySettings[targetCurrency].ISO].Value<decimal>();
             
-            var exchangeRate = target1 / source1;
+        //    var exchangeRate = target1 / source1;
             
-            return exchangeRate;
-        }
+        //    return exchangeRate;
+        //}
 
         //public static 
 
@@ -134,12 +137,14 @@ namespace CurrencyConverter
         {
             var result = new List<ParsingResult>();
 
-            var possibleCurrencySymbols = CurrencySettings.Values.SelectMany(x => x.Symbols).ToDictionary(x => x).Keys.Select(x => x).Select(Regex.Escape).ToList();
+            var possibleCurrencySymbols = CurrencySettings.Values.Select(x => x.Symbols).ToList();
             var possibleCurrencySymbolsStr = string.Join("|", possibleCurrencySymbols);
 
             //var matches = Regex.Matches(input, @$"\b(?'sumWcur'(?'sum'(?!0+ 00)(?=.{{1,9}}( |$))(?!0(?! ))\d{{1,3}}( \d{{3}})*( \d+)?) ?(?'cur'{possibleCurrencySymbolsStr}))(\s|$)", RegexOptions.Multiline);
             //var matches = Regex.Matches(input, @$"\b(?'sumWcur'(?'sum'(?!0+\.00)(?=.{{1,9}}(\.|$))(?!0(?!\.))\d{{1,3}}((,| |)\d{{3}})*(\.\d+)?) ?(?'cur'{possibleCurrencySymbolsStr}))(\s|$)", RegexOptions.Multiline);
-            var matches = Regex.Matches(input, @$"\b(?'sumWcur'(?'sum'(?!0+\.00)(?=.{{1,9}}(\.|$| ))(?!0(?!\.))\d{{1,3}}((,| |)\d{{3}})*(\.\d+)?) ?(?'cur'{possibleCurrencySymbolsStr}))(\s|$)", RegexOptions.Multiline);
+            var pattern = @$"\b(?'sumWcur'(?'sum'(?!0+\.00)(?=.{{1,9}}(\.|$| ))(?!0(?!\.))\d{{1,3}}((,| |)\d{{3}})*(\.\d+)?) ?(?'cur'{possibleCurrencySymbolsStr}))(\s|$)";
+            var matches = Regex.Matches(input, pattern, RegexOptions.Multiline);
+            Console.WriteLine($"{pattern}");
 
             foreach (Match match in matches)
             {
@@ -156,19 +161,20 @@ namespace CurrencyConverter
 
         public static Currency DetectCurrency(string input)
         {
-            var currencySetting = CurrencySettings.FirstOrDefault(x => x.Value.Symbols.Contains(input));
+            //var currencySetting = CurrencySettings.FirstOrDefault(x => x.Value.Symbols.Contains(input));
+            var currencySetting = CurrencySettings.FirstOrDefault(x => Regex.IsMatch($@"{input}", $"^({x.Value.Symbols})$"));
 
             return currencySetting.Key;
         }
 
-        public static string TestRequest = @"{
- ""conversion_rates"":{
-  ""USD"":1,
-  ""AED"":3.67,
-  ""KZT"":423.98,
-  ""RUB"":72.47
- }
-}";
+//        public static string TestRequest = @"{
+// ""conversion_rates"":{
+//  ""USD"":1,
+//  ""AED"":3.67,
+//  ""KZT"":423.98,
+//  ""RUB"":72.47
+// }
+//}";
     }
 
     public class ParsingResult
@@ -298,7 +304,9 @@ namespace CurrencyConverter
     {
         //public Currency Currency { get; set; }
 
-        public List<string> Symbols { get; set; }
+        //public List<string> Symbols { get; set; }
+
+        public string Symbols { get; set; }
 
         public bool IsBefore { get; set; }
 
